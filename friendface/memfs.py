@@ -23,15 +23,15 @@ class MemoryFS:
         if not self.folder_exists(name):
             raise MissingFolderException(name)
 
-    def ls(self, folder):
+    def ls(self, folder, max_nr=100):
         folder = self._data.get(folder)
         if folder is None:
             raise MissingFolderException(folder)
 
         return [
-            value for value in sorted(folder.values(), key=lambda x: x.get('created'))
+            value for value in sorted(folder.values(), key=lambda x: x.get('created'))[:max_nr]
         ]
-    
+
     def store(self, folder, name, data):
         folder = self._data.get(folder)
         if folder is None:
