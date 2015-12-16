@@ -6,7 +6,8 @@ import logging
 import argparse
 import configparser
 from bottle import Bottle, debug, redirect
-
+from .memfs import MemoryFS
+from .thread import THREAD_CONFIG
 
 # Selecting what web API's we want to load
 from .web import api
@@ -29,6 +30,9 @@ if __name__ == '__main__':
         level=logging.DEBUG,
         format='%(asctime)s [%(threadName)s] %(filename)s +%(levelno)s %(funcName)s %(levelname)s %(message)s'
     )
+
+    # Thread file system
+    THREAD_CONFIG['file_system'] = MemoryFS()
 
     # Starting up the web server
     app = Bottle()
