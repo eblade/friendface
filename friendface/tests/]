@@ -34,21 +34,13 @@ def test_message_generate_key():
 
 
 def test_messages_in_a_thread(thread):
-    num_messages = 10
     last_key = None
     source = 'me'
     public_key = 'my public key'
-    for i in range(num_messages):
+    for i in range(10):
         data = ('data ' + str(i)).encode('utf8')
-        message = Message(
+        thread.messages.append(Message(
             data=data,
             source=source,
-            public_key=public_key,
-            in_reply_to=last_key,
-        )
-        message.calculate_key()
-        last_key = message.key
-        thread.messages.append(message)
-
-    assert len(thread.messages) == num_messages
-    assert len({message.key for message in thread.messages}) == num_messages
+            public_key=public_key
+        ))

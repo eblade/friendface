@@ -1,14 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import pytest
-
 from friendface.thread import Thread
-from friendface.storage import Storage
-
-
-@pytest.fixture(scope="function")
-def storage():
-    return Storage()
 
 
 def test_created_thread_should_have_key():
