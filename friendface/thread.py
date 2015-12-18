@@ -2,9 +2,9 @@
 
 import hashlib
 import datetime
+from enum import IntEnum
 
 from . import ConflictException
-
 
 
 THREAD_CONFIG = {
@@ -13,10 +13,11 @@ THREAD_CONFIG = {
 
 
 class Thread:
-    def __init__(self):
+    def __init__(self, seed=None):
         # TODO Better randomness
-        ts = datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f')
-        self._key = hashlib.md5(ts.encode('utf8')).hexdigest()
+        seed = seed or\
+            datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f')
+        self._key = hashlib.md5(seed.encode('utf8')).hexdigest()
         self.messages = []
 
     @property
@@ -25,28 +26,36 @@ class Thread:
 
 
 class Message:
-    def __init__(self, data):
+    class Privacy(IntEnum):
+        deny = 0
+        friends = 1
+        everyone = 2
+
+    def __init__(self, data=None, key=None, source=None, verified=False, 
+                 public_key=None, private_key=None,
+                 privacy=Message.Privacy.friends, timestamp=None,
+                 in_reply_to=None):
         self.data = data  # The actual data, as a unicode string
-        self.key = None  # The hash key for this message
-        self.source = None  # The global public key of the source of the message
-        self.public_key = None  # The public key for this message
-        self.private_key = None  # Your private key for this message
-        self.deny = False  # True if you will verify this
-        self.timestamp = None  # non-trusted timestamp (unix epoch)
-        self.in_reply_to = None  # key of a message in the same thread
+        self.key = key  # The hash key for this message
+        self.source = source  # The global public key of the source of the message
+        self.verified = verified  # Whether or not the source is verified
+        self.public_key = public_key  # The public key for this message
+        self.private_key = private_key  # Your private key for this message
+        self.privacy = privacy  # Verification level
+        self.timestamp = timestamp  # non-trusted timestamp (unix epoch)
+        self.in_reply_to = in_reply_to  # key of a message in the same thread
 
     def calculate_key(self):
         if self.data is None:
             raise ValueError("message can't be None")
-        if self.source is None:
-            raise ValueError("source can't be None")
         if self.public_key is None:
             raise ValueError("public_key can't be None")
-        
+
         # key should be a product of data, source, public_key, in_reply_to
-        string = self.data + self.public_key + self.source + (self.in_reply_to or '')
-        self.key = hashlib.md5(string.encode('utf8').hexdigest()
-    
+        string = self.data + self.public_key +\
+            (self.source or '') + (self.in_reply_to or '')
+        self.key = hashlib.md5(string.encode('utf8').hexdigest())
+
     def to_dict(self, for_sharing=False, for_key=False):
         if self.key is None:
             self.calculate_key()
@@ -55,6 +64,7 @@ class Message:
             'data': self.data,
             'key': self.key,
             'source': self.source,
+            'verified': self.verified,
             'public_key': self.public_key,
             'timestamp': self.timestamp,
             'in_reply_to': self.in_reply_to,
@@ -63,7 +73,7 @@ class Message:
         if not for_sharing:
             d.update({
                 'private_key': self.private_key,
-                'deny': self.deny,
+                'privacy': self.privacy,
             })
 
         return d
@@ -74,9 +84,11 @@ class Message:
         m.data = d.get('data')
         m.key = d.get('key')
         m.source = d.get('source')
+        m.verified = d.get('verified', False)
         m.public_key = d.get('public_key')
         m.private_key = d.get('private_key')
-        m.deny = d.get('deny', False)
+        m.privacy = Message.Privacy(
+            d.get('privacy', Message.Privacy.friends))
         m.timestamp = d.get('timestamp')
         m.in_reply_to = d.get('in_reply_to')
 

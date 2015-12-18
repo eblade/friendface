@@ -1,25 +1,27 @@
 # -*- coding: utf-8 -*-
 
-from friendface import thread
-from friendface.memfs import MemoryFS
+import pytest
+
+from friendface.thread import Thread
+from friendface.storage import Storage
 
 
-def test_create_thread_should_create_folder():
-    file_system = MemoryFS()
-    thread_id = thread.create_thread(file_system=file_system)
+@pytest.fixture(scope="function")
+def storage():
+    return Storage()
 
-    assert file_system.folder_exists(thread_id)
+
+def test_created_thread_should_have_key():
+    thread = Thread(seed='0')
+    assert thread.key is not None
+
+
+def test_created_thread_should_have_no_messages():
+    thread = Thread(seed='0')
+    assert len(thread.messages) == 0
 
 
 def test_different_threads_get_different_ids():
-    file_system = MemoryFS()
-    thread_id_1 = thread.create_thread(file_system=file_system)
-    thread_id_2 = thread.create_thread(file_system=file_system)
-    thread_id_3 = thread.create_thread(file_system=file_system)
-
-    assert file_system.folder_exists(thread_id_1)
-    assert file_system.folder_exists(thread_id_2)
-    assert file_system.folder_exists(thread_id_3)
-
-    assert thread_id_1 != thread_id_2
-    assert thread_id_2 != thread_id_3
+    threads = [Thread(seed=str(x)) for x in range(10)]
+    keys = set(thread.key for thread in threads)
+    assert len(keys) == len(threads)

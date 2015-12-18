@@ -9,23 +9,30 @@ from friendface.thread import create_thread, list_thread,\
 from friendface.memfs import MemoryFS
 
 
-@pytest.fixture(scope='function')
-def file_system():
-    fs = MemoryFS()
-    THREAD_CONFIG['file_system'] = fs
-    return fs
+@pytest.fixture(scope="function")
+def seed():
+    def iterator():
+        x = 0
+        while True:
+            yield str(x)
+            x += 1
+    return iterator()
 
 
-@pytest.fixture(scope='function')
-def thread_id(file_system):
-    return create_thread()
+@pytest.fixture(scope="function")
+def thread(seed):
+    thread = Thread(seed=next(seed))
+    
+
+def test_message():
+    message = Message()
 
 
-@pytest.fixture(scope='function')
-def webapp(file_system):
-    from friendface.web.thread import app
-    debug(True)
-    return webtest.TestApp(app)
+#@pytest.fixture(scope='function')
+#def webapp(file_system):
+#    from friendface.web.thread import app
+#    debug(True)
+#    return webtest.TestApp(app)
 
 
 def test_create_message_should_return_an_id(thread_id, file_system):
