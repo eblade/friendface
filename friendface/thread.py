@@ -24,4 +24,10 @@ class Thread:
         return self._key
 
     def add_message(self, message):
-        self.message[message.key] = message
+        self.messages[message.key] = message
+
+    def get_message_keys(self):
+        return self.messages.keys()
+
+    def get_message(self, message_id):
+        return self.messages.get(message_id)
