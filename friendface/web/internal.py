@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from bottle import redirect, request, HTTPResponse
+from bottle import redirect, request, response, HTTPResponse
 
 from .api import Api
 from .ui import ui_app, UI_CONFIG
@@ -18,7 +18,8 @@ class InternalApi(Api):
         app.route('/', 'GET', lambda: redirect('/ui'))
 
         # Set up internal end-points
-        app.route('/thread/', 'POST', self.create_thread)
+        app.route('/thread', 'GET', self.get_threads)
+        app.route('/thread', 'POST', self.create_thread)
         app.route('/thread/<thread_id>/<message_id>', 'POST',
                   self.create_message)
 
@@ -26,8 +27,15 @@ class InternalApi(Api):
     def get_thread_name(self):
         return 'internal_api'
 
+    def get_threads(self):
+        return {
+            'type': 'thread/list',
+            'threads': list(self.session.get_thread_ids()),
+        }
+
     def create_thread(self):
         thread = self.session.create_thread()
+        response.status = 201
         return {
             'type': 'thread',
             'id': thread.key,

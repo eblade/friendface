@@ -15,6 +15,9 @@ class Session:
         self.external_app = None  #: web app for external api
         self.internal_app = None  #: web app for internal api
 
+    def get_thread_ids(self):
+        return self.threads.keys()
+
     def create_thread(self):
         thread = Thread()
         self.threads[thread.key] = thread
