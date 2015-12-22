@@ -16,9 +16,12 @@ class Thread:
                 datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%S.%f')
             self._key = hashlib.md5(seed.encode('utf8')).hexdigest()
         self.privacy = privacy  #: Privacy level
-        self.messages = []  #: A list of messages in this Thread
+        self.messages = {}  #: Messages (key -> message)
 
     @property
     def key(self):
         """The unique key of this Thread"""
         return self._key
+
+    def add_message(self, message):
+        self.message[message.key] = message

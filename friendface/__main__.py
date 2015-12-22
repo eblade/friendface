@@ -5,6 +5,11 @@ import os
 import logging
 import argparse
 import configparser
+from time import sleep
+from bottle import Bottle
+
+from .session import Session
+from .web import external, internal
 
 
 if __name__ == '__main__':
@@ -20,6 +25,27 @@ if __name__ == '__main__':
 
     # Logging
     logging.basicConfig(
-        level=logging.DEBUG,
-        format='%(asctime)s [%(threadName)s] %(filename)s +%(levelno)s %(funcName)s %(levelname)s %(message)s'
+        level=getattr(logging, config['logging']['level']),
+        format='%(asctime)s [%(threadName)s] %(filename)s +%(levelno)s %(funcName)s %(levelname)s %(message)s',
     )
+
+    # Session
+    session = Session()
+
+    # Servers
+    ext_addr = config['external']['hostname'], int(config['external']['port'])
+    int_addr = config['internal']['hostname'], int(config['internal']['port'])
+    int_root = config['internal']['root']
+
+    external_app = Bottle()
+    session.external_api = external.ExternalApi(session, external_app)
+    session.external_api.start(*ext_addr)
+
+    internal_app = Bottle()
+    session.internal_api = internal.InternalApi(session, internal_app,
+                                                int_root)
+    session.internal_api.start(*int_addr)
+
+    # Main loop
+    while True:
+        sleep(.5)

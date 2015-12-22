@@ -48,7 +48,6 @@ def test_messages_in_a_thread(thread):
         )
         message.calculate_key()
         last_key = message.key
-        thread.messages.append(message)
+        thread.messages[message.key] = message
 
     assert len(thread.messages) == num_messages
-    assert len({message.key for message in thread.messages}) == num_messages

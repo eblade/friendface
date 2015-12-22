@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 
+import pytest
+
 from friendface.privacy import sign, verify, Verification
 from friendface.message import Message
 
@@ -26,8 +28,9 @@ def test_sign_and_verify():
     assert message.verified == Verification.verified
 
 
+@pytest.mark.slow
 def test_sign_gives_different_keys():
-    num_messages = 3
+    num_messages = 10
     source = 'me'
     public_key = 'my public key'
     messages = []

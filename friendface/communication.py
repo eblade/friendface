@@ -30,7 +30,8 @@ class Server:
             readable, _, _ = select.select([server], [], [], self.timeout)
 
             if len(readable) == 0:
-                raise ConnectionError("Select did not return a readable server socket")
+                raise ConnectionError(
+                    "Select did not return a readable server socket")
 
             server = readable.pop()
             self.server_socket = server
@@ -48,8 +49,9 @@ class Server:
             self.server_thread.start()
 
         except Exception as e:
-            logging.critical("Closing down server at %s:%i because of errors %s",
-                             self.hostname, self.port, str(e))
+            logging.critical(
+                "Closing down server at %s:%i because of errors %s",
+                self.hostname, self.port, str(e))
             server.close()
             self.server_thread = None
             self.server_socket = None
@@ -65,6 +67,7 @@ class Server:
                 self.pickup(client, address)
         finally:
             logging.warning("Closing down server")
+            server.shutdown(socket.SHUT_RDWR)
             server.close()
             self.server_thread = None
             self.server_socket = None
@@ -81,16 +84,20 @@ class Server:
 
     def _client(self, client, address):
         logging.info("Pickup")
-        readable, _, error = select.select([client], [client], [client], self.timeout)
+        readable, _, error = select.select(
+            [client], [], [client], self.timeout)
 
         if len(readable) == 0:
-            raise ConnectionError("Select did not return a readable client socket")
+            raise ConnectionError(
+                "Select did not return a readable client socket")
         if len(error) == 1:
-            raise ConnectionError("Select did return a client socket in error")
+            raise ConnectionError(
+                "Select did return a client socket in error")
 
         client = readable.pop()
         logging.info("Running callback")
         self.callback(client)
+        client.shutdown(socket.SHUT_RDWR)
         client.close()
 
     def stop(self):
@@ -113,28 +120,36 @@ class Client:
             client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.client = client
             client.connect((self.hostname, self.port))
-            # client.setblocking(0)
 
-            _, writable, error = select.select([], [client], [client], self.timeout)
+            _, writable, error = select.select(
+                [], [client], [client], self.timeout)
 
             if len(writable) == 0:
-                raise ConnectionError("Select did not return a writable client socket")
+                raise ConnectionError(
+                    "Select did not return a writable client socket")
             if len(error) == 1:
-                raise ConnectionError("Select did return a client socket in error")
+                raise ConnectionError(
+                    "Select did return a client socket in error")
 
             self.client = writable.pop()
             logging.info("Connected to %s:%i", self.hostname, self.port)
             return client
         except Exception as e:
-            logging.info("Closing client connection to %s:%i because of error %s",
-                         self.hostname, self.port, str(e))
+            logging.info(
+                "Closing client connection to %s:%i because of error %s",
+                self.hostname, self.port, str(e))
             self.client.close()
             raise e
 
     def __exit__(self, type, value, traceback):
-        logging.info("Closing client connection to %s:%i", self.hostname, self.port)
+        logging.info(
+            "Closing client connection to %s:%i",
+            self.hostname, self.port)
+        self.client.shutdown(socket.SHUT_RDWR)
         self.client.close()
-        logging.info("Closed client connection to %s:%i", self.hostname, self.port)
+        logging.info(
+            "Closed client connection to %s:%i",
+            self.hostname, self.port)
 
 
 class AlreadyConnected(Exception):
