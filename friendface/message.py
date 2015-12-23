@@ -54,7 +54,7 @@ class Message:
 
     def calculate_key(self):
         if self.data is None:
-            raise ValueError("message can't be None")
+            raise ValueError("Message data can't be None")
 
         # key should be a product of data, source, public_key, in_reply_to
         string = self.data\
