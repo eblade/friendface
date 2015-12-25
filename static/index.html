@@ -1,13 +1,24 @@
 <!doctype html>
-<html ng-app='bikeshedding'>
+<html ng-app='friendface'>
     <head>
-        <title>Bike Shedding</title>
+        <title>friendface</title>
         <!--<link rel="stylesheet" type="text/css" href="css/index.css"/>-->
-        <script src="js/angular.min.js"></script>
-        <script src="js/bikeshedding1.js"></script>
+        <script src="/ui/js/angular.min.js"></script>
+        <script src="/ui/js/friendface.js"></script>
     </head>
-    <body
-        ng-controller="Main">
-        <h1>{{test}}</h1>
+    <body ng-controller="Main">
+        <h1>Threads</h1>
+        <button ng-click="create_thread()">Create thread</button>
+        <ul>
+            <li ng-repeat="thread in state.threads">{{thread}}</li>
+        </ul>
+        <h1>Messages</h1>
+        <form ng-submit="create_message(state.current_thread.id)">
+            <input type="text" ng-model="state.message_text"/>
+            <input type="submit" value="Send"/>
+        </form>
+        <ul>
+            <li ng-repeat="message in state.current_thread.messages">{{message}}</li>
+        </li>
     </body>
 </html>

@@ -5,13 +5,11 @@ import os
 import logging
 import argparse
 import configparser
-from bottle import Bottle, debug, redirect
-from .memfs import MemoryFS
-from .thread import THREAD_CONFIG
+from time import sleep
+from bottle import Bottle
 
-# Selecting what web API's we want to load
-from .web import api
-from .web import ui, thread
+from .session import Session
+from .web import external, internal
 
 
 if __name__ == '__main__':
@@ -27,21 +25,27 @@ if __name__ == '__main__':
 
     # Logging
     logging.basicConfig(
-        level=logging.DEBUG,
-        format='%(asctime)s [%(threadName)s] %(filename)s +%(levelno)s %(funcName)s %(levelname)s %(message)s'
+        level=getattr(logging, config['logging']['level']),
+        format='%(asctime)s [%(threadName)s] %(filename)s +%(levelno)s %(funcName)s %(levelname)s %(message)s',
     )
 
-    # Thread file system
-    THREAD_CONFIG['file_system'] = MemoryFS()
+    # Session
+    session = Session()
 
-    # Starting up the web server
-    app = Bottle()
-    api.mount_all(app)
+    # Servers
+    ext_addr = config['external']['hostname'], int(config['external']['port'])
+    int_addr = config['internal']['hostname'], int(config['internal']['port'])
+    int_root = config['internal']['root']
 
-    # Redirect root to ui root
-    @app.get('/')
-    def def_get_index():
-        return redirect('/ui/')
+    external_app = Bottle()
+    session.external_api = external.ExternalApi(session, external_app)
+    session.external_api.start(*ext_addr)
 
-    debug(True)
-    app.run(host=config['Server']['host'], port=int(config['Server']['port']))
+    internal_app = Bottle()
+    session.internal_api = internal.InternalApi(session, internal_app,
+                                                int_root)
+    session.internal_api.start(*int_addr)
+
+    # Main loop
+    while True:
+        sleep(.5)

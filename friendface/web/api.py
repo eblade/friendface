@@ -1,27 +1,29 @@
 # -*- coding: utf-8 -*-
 
-"""
-Collects and mounts bottle apps on a given root app. Run register from each
-sub-api and then call mount_all with the root app.
-"""
-
-import logging
-
-_apis = {}
-_local = {}
+import threading
 
 
-def register(mount_point, app):
-    if _local.get('locked') is True:
-        raise Exception("API regitration is locked")
-    if mount_point in _apis.keys():
-        raise NameError("API already mounted on '%s'" % mount_point)
+class Api:
+    def __init__(self):
+        # should set
+        # * self.session (Session)
+        # * self.app (Bottle app)
+        raise NotImplemented
 
-    _apis[mount_point] = app
+    def get_thread_name(self):
+        raise NotImplemented
 
+    def start(self, hostname, port):
+        self.server_thread = threading.Thread(
+            target=self._start,
+            name=self.get_thread_name(),
+            args=(hostname, port),
+        )
+        self.server_thread.daemon = True
+        self.server_thread.start()
 
-def mount_all(root_app):
-    _local['locked'] = True
-    for mount_point, app in _apis.items():
-        logging.info("Mounting app on '%s'", mount_point)
-        root_app.mount(mount_point, app)
+    def _start(self, hostname, port):
+        self.app.run(
+            hostname=hostname,
+            port=port
+        )
