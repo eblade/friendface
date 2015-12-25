@@ -97,3 +97,21 @@ def test_create_message_should_get_signed(webapp, thread):
     assert message.public_key is not None
 
     assert verify(message)
+
+
+def test_created_messages_should_end_up_in_thread_listing(webapp, thread):
+    MESSAGE_COUNT = 3
+    message_ids = set()
+    for i in range(MESSAGE_COUNT):
+        data = b'hello world ' + bytes(str(i), 'utf8')
+        r = webapp.post('/thread/' + thread.key, data,
+                        headers={'Content-Type': 'text/plain'})
+        assert r.status_code == 201
+        message_ids.add(r.headers['key'])
+        print(data, r.headers['key'])
+
+    r = webapp.get('/thread/%s' % (thread.key))
+    assert r.status_code == 200
+
+    assert len(message_ids) == MESSAGE_COUNT
+    assert message_ids == set(r.json.get('messages'))

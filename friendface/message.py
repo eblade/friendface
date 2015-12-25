@@ -58,7 +58,7 @@ class Message:
 
         # key should be a product of data, source, public_key, in_reply_to
         string = self.data\
-            + self.public_key.encode('utf8') if self.public_key else bytes()\
+            + (self.public_key.encode('utf8') if self.public_key else bytes())\
             + (self.source.encode('utf8') if self.source else bytes())\
             + (self.in_reply_to.encode('utf8') if self.in_reply_to else bytes())
         self.key = hashlib.md5(string).hexdigest()
