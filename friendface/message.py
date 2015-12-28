@@ -4,6 +4,7 @@ import hashlib
 import base64
 
 from .privacy import Privacy
+from .branch import Branch
 
 
 class Message:
@@ -23,6 +24,8 @@ class Message:
         self.timestamp = timestamp  #: non-trusted timestamp (unix epoch)
         self.in_reply_to = in_reply_to  #: key of a message in the same thread
 
+        self.branch = None  #: the Branch this message is part of
+
     @classmethod
     def from_http(self, body, headers):
         d = {key.lower().replace('-', '_'): value for key, value in headers.items()}
@@ -35,12 +38,12 @@ class Message:
     def to_http(self, for_sharing=False):
         headers = {
             'Key': self.key if self.key else None,
-            'Source': self.source.decode() if self.source else None,
+            'Source': self.source if self.source else None,
             'Verified': 'yes' if self.verified else 'no',
             'Signature': base64.b64encode(self.signature) if self.signature else None,
             'Public-Key': base64.b64encode(self.public_key).decode() if self.public_key else None,
             'Timestamp': str(self.timestamp) if self.timestamp else None,
-            'In-Reply-To': self.in_reply_to.decode() if self.in_reply_to else None,
+            'In-Reply-To': self.in_reply_to if self.in_reply_to else None,
         }
 
         if not for_sharing:
@@ -62,6 +65,8 @@ class Message:
             + (self.source.encode('utf8') if self.source else bytes())\
             + (self.in_reply_to.encode('utf8') if self.in_reply_to else bytes())
         self.key = hashlib.md5(string).hexdigest()
+        if self.branch is None:
+            self.branch = Branch(self.key)
 
     def to_dict(self, for_sharing=False):
         d = {
@@ -90,4 +95,6 @@ class Message:
         """
         Perform a shallow copy of the message.
         """
-        return Message(**(self.to_dict()))
+        message = Message(**(self.to_dict()))
+        message.branch = self.branch
+        return message

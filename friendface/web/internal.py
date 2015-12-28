@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from bottle import redirect, request, response, HTTPResponse
+from bottle import redirect, request, HTTPResponse
 
 from .api import Api
 from .ui import ui_app, UI_CONFIG
@@ -19,60 +19,30 @@ class InternalApi(Api):
         app.route('/', 'GET', lambda: redirect('/ui'))
 
         # Set up internal end-points
-        app.route('/thread', 'GET', self.get_threads)
-        app.route('/thread', 'POST', self.create_thread)
-        app.route('/thread/<thread_id>', 'GET', self.get_thread_by_id)
-        app.route('/thread/<thread_id>', 'POST', self.create_message)
-        app.route('/thread/<thread_id>/<message_id>', 'GET', self.get_message_by_id)
+        app.route('/m', 'GET', self.get_messages)
+        app.route('/m', 'POST', self.register_message)
+        app.route('/m/<message_id>', 'GET', self.get_message_by_id)
 
     # override
     def get_thread_name(self):
         return 'internal_api'
 
-    def get_threads(self):
+    def get_messages(self):
         return {
-            'type': 'thread/list',
-            'threads': list(self.session.get_thread_keys()),
+            'type': 'message/list',
+            'messages': list(self.session.get_message_keys()),
         }
 
-    def create_thread(self):
-        thread = self.session.create_thread()
-        response.status = 201
-        return {
-            'type': 'thread',
-            'id': thread.key,
-            'messages': [],
-        }
-
-    def get_thread_by_id(self, thread_id):
-        thread = self.session.get_thread(thread_id)
-        if thread is None:
-            return HTTPResponse(status_code=404)
-
-        response.status = 200
-        return {
-            'type': 'thread',
-            'id': thread.key,
-            'messages': list(thread.get_message_keys()),
-        }
-
-    def create_message(self, thread_id):
-        thread = self.session.threads.get(thread_id)
-        if thread is None:
-            return HTTPResponse('Unknown thread', 404)
-
+    def register_message(self):
         body = request.body.read()
         if not body:
             return HTTPResponse('Body required', 400)
 
-        message_data = {
-            'data': body,
-        }
-
-        message = Message(**message_data)
+        message = Message.from_http(body, request.headers)
         message.calculate_key()
         message = sign(message)
-        thread.add_message(message)
+        assert message.branch is not None
+        self.session.register_message(message)
 
         body, headers = message.to_http()
 
@@ -82,12 +52,8 @@ class InternalApi(Api):
             headers=headers,
         )
 
-    def get_message_by_id(self, thread_id, message_id):
-        thread = self.session.threads.get(thread_id)
-        if thread is None:
-            return HTTPResponse('Unknown thread', 404)
-
-        message = thread.get_message(message_id)
+    def get_message_by_id(self, message_id):
+        message = self.session.get_message(message_id)
         if message is None:
             return HTTPResponse('Unknown message', 404)
 

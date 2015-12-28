@@ -7,18 +7,14 @@
         <script src="/ui/js/friendface.js"></script>
     </head>
     <body ng-controller="Main">
-        <h1>Threads</h1>
-        <button ng-click="create_thread()">Create thread</button>
-        <ul>
-            <li ng-repeat="thread in state.threads">{{thread}}</li>
-        </ul>
         <h1>Messages</h1>
-        <form ng-submit="create_message(state.current_thread.id)">
+        <button ng-click="get_messages()">Get messages</button>
+        <form ng-submit="create_message()">
             <input type="text" ng-model="state.message_text"/>
             <input type="submit" value="Send"/>
         </form>
         <ul>
-            <li ng-repeat="message in state.current_thread.messages">{{message}}</li>
+            <li ng-repeat="message in state.messages">{{message}}</li>
         </li>
     </body>
 </html>

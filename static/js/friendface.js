@@ -7,39 +7,31 @@ angular.module('friendface', [])
 .controller('Main', function ($scope, $http) {
     $scope.state = Object();
 
-    $scope.get_threads = function () {
-        $http.get('/thread').then(
+    $scope.get_messages = function () {
+        $http.get('/m').then(
             function (r) {
-                $scope.state.threads = r.data.threads;
-                $scope.load_thread($scope.state.threads[0]);
+                $scope.state.messages = r.data.messages;
             },
-            function () { alert('Could not get threads!'); }
+            function () { alert('Could not get messages!'); }
         );
     };
 
-    $scope.create_thread = function () {
-        $http.post('/thread').then(
-            function (r) {},
-            function () { alert('Could not create thread!'); }
-        );
-    };
-
-    $scope.load_thread = function (thread_id) {
-        $http.get('/thread/' + thread_id).then(
+    $scope.load_message = function (message_id) {
+        $http.get('/m' + message_id).then(
             function (r) {
-                $scope.state.current_thread = r.data;
+                $scope.state.current_data = r.data;
             },
-            function () { alert('Could not load thread ' + thread_id); }
+            function () { alert('Could not load message ' + message_id); }
         );
     };
 
-    $scope.create_message = function (thread_id) {
-        $http.post('/thread/' + thread_id, $scope.state.message_text).then(
+    $scope.create_message = function () {
+        $http.post('/m', $scope.state.message_text).then(
             function (r) {
             },
             function () { alert('Could not create message :(') }
         );
     };
 
-    $scope.get_threads();
+    $scope.get_messages();
 });
