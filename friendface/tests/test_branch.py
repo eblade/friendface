@@ -58,3 +58,4 @@ def test_rename_branch():
 
     branch.name = '2'
     assert branch.name == '2'
+    assert branch.root == '1'
