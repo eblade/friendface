@@ -4,21 +4,54 @@
         <title>friendface</title>
         <!--<link rel="stylesheet" type="text/css" href="css/index.css"/>-->
         <script src="/ui/js/angular.min.js"></script>
+        <script src="/ui/js/angular-sanitize.min.js"></script>
+        <script src="/ui/js/showdown.min.js"></script>
+        <script src="/ui/js/markdown.js"></script>
+        <script src="/ui/js/ngDialog.js"></script>
         <script src="/ui/js/friendface.js"></script>
+        <link rel="stylesheet" type="text/css" href="/ui/css/index.css"/>
+        <link rel="stylesheet" type="text/css" href="/ui/css/ngDialog.css"/>
+        <link rel="stylesheet" type="text/css" href="/ui/css/ngDialog-theme-default.css"/>
     </head>
     <body ng-controller="Main">
-        <h1>Threads</h1>
-        <button ng-click="create_thread()">Create thread</button>
+        <h1>Branches</h1>
+        <button ng-click="get_branches()">Get branches</button>
         <ul>
-            <li ng-repeat="thread in state.threads">{{thread}}</li>
+            <li ng-repeat="branch in branches"
+                ng-click="get_branch(branch.root)")>{{branch.name}}
+                <button ng-click="rename(branch)">Rename</button>
+            </li>
         </ul>
+        <button ng-click="reply()">New</button>
+        <hr>
         <h1>Messages</h1>
-        <form ng-submit="create_message(state.current_thread.id)">
-            <input type="text" ng-model="state.message_text"/>
-            <input type="submit" value="Send"/>
-        </form>
-        <ul>
-            <li ng-repeat="message in state.current_thread.messages">{{message}}</li>
-        </li>
+        <p>Branch is {{branch.name}}</p>
+        <script type="text/ng-template" id="message.html">
+            <div style="border-left: {{message.level*10}}px solid gray;"
+                 class="message">
+                <div btf-markdown ng-include="get_message_url(message.key)">
+                </div>
+                <button ng-click="reply(message)">Reply</button>
+            </div>
+        </script>
+        <div ng-repeat="message in messages" ng-include="'message.html'">
+        </div>
+        <script type="text/ng-template" id="message_form.html">
+            Write a message.<br/>
+            <form ng-submit="create_message(text, ngDialogData.message)">
+                <textarea ng-model="text" rows="10" cols="40"></textarea>
+                <br/>
+                <input type="submit" value="Send"/>
+            </form>
+        </script>
+        <script type="text/ng-template" id="rename_branch_form.html">
+            Rename the branch {{ngDialogData.branch.name}}.<br/>
+            <form ng-init="text = ngDialogData.branch.name"
+                  ng-submit="rename_branch(text)">
+                <input ng-model="text"/>
+                <br/>
+                <input type="submit" value="Rename"/>
+            </form>
+        </script>
     </body>
 </html>

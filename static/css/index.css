@@ -1,0 +1,23 @@
+body {
+    font-family: arial;
+}
+
+table {
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    border-collapse: collapse;
+}
+
+td {
+    vertical-align: top;
+}
+
+
+div.message {
+    background-color: #eeeeee;
+    border-bottom: 3px solid #aaaaaa;
+    padding: 5px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+}
