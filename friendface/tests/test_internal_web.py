@@ -191,19 +191,10 @@ def test_adding_three_chained_messages_returns_a_chained_branch(webapp):
     assert r.status_code == 200
     data = r.json
     assert data['type'] == 'branch'
-    root = data['root']
-    print(root)
-    assert root == {
-        'key': key_1,
-        'replies': [
-            {
-                'key': key_2,
-                'replies': [
-                    {
-                        'key': key_3,
-                        'replies': [],
-                    }
-                ]
-            }
-        ]
-    }
+    messages = data['messages']
+    print(messages)
+    assert messages == [
+        {'key': key_1, 'level': 0},
+        {'key': key_2, 'level': 0},
+        {'key': key_3, 'level': 0},
+    ]

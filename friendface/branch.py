@@ -43,3 +43,24 @@ class Branch(set):
                 self.to_tree(reply) for reply in self.replies.get(root, [])
             ]
         }
+
+    def to_flat_tree(self):
+        tree = self.to_tree()
+        count_leaves(tree)
+        return flatten_tree(tree)
+
+
+def count_leaves(root):
+    total_leaves = 0
+    for reply in root['replies']:
+        leaves = reply.get('leaves') or count_leaves(reply)
+        reply['leaves'] = leaves
+        total_leaves += leaves
+    return total_leaves
+
+
+def flatten_tree(root, level=0):
+    result = [dict(key=root['key'], level=level)]
+    for reply in sorted(root.get('replies'), key=lambda x: x.get('leaves')):
+        result.extend(flatten_tree(reply, level))
+    return result

@@ -88,5 +88,5 @@ class InternalApi(Api):
             'type': 'branch',
             'name': branch.name,
             'key': branch.root,
-            'root': branch.to_tree(),
+            'messages': branch.to_flat_tree(),
         }
