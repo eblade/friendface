@@ -22,7 +22,7 @@ class Branch(set):
     def insert(self, message):
         self.add(message.key)
         message.branch = self
-        
+
         if message.in_reply_to is not None:
             if message.in_reply_to in self.replies.keys():
                 self.replies[message.in_reply_to].append(message.key)
@@ -34,7 +34,7 @@ class Branch(set):
 
         else:
             self.root = message.key
-   
+
     def to_tree(self, root=None):
         root = root or self.root
         return {

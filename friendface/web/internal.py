@@ -67,7 +67,7 @@ class InternalApi(Api):
             status=200,
             headers=headers,
         )
-    
+
     def get_branches(self):
         branches = self.session.get_branches()
 
@@ -80,7 +80,7 @@ class InternalApi(Api):
                 } for branch in branches
             ],
         }
-    
+
     def get_branch(self, message_id):
         branch = self.session.get_branch(message_id)
 

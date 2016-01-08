@@ -158,6 +158,7 @@ def test_adding_two_related_messages_adds_one_branch(webapp):
     r = webapp.post('/m', b'message 2', headers={'Content-Type': 'text/plain', 'In-Reply-To': key_1})
     assert r.status_code == 201
     key_2 = r.headers['key']
+    assert key_1 != key_2
 
     # Fetch branch listing
     r = webapp.get('/b')

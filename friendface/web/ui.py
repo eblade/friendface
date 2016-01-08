@@ -23,7 +23,7 @@ def get_js(file):
 
 
 @ui_app.get('/js/<file>.map')
-def get_js(file):
+def get_js_map(file):
     return static_file(file + '.map', root=_get_static_path('js'))
 
 
