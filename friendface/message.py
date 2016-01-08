@@ -40,6 +40,8 @@ class Message:
             d['public_key'] = base64.b64decode(d['public_key'])
         if 'signature' in d:
             d['signature'] = base64.b64decode(d['signature'])
+        if d.get('in_reply_to', None) == 'null':
+            d['in_reply_to'] = None
         return Message(data=body, **d)
 
     def to_http(self, for_sharing=False):

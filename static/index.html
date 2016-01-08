@@ -18,36 +18,40 @@
         <button ng-click="get_branches()">Get branches</button>
         <ul>
             <li ng-repeat="branch in branches"
-                ng-click="get_branch(branch.root)")>{{branch.name}}</li>
+                ng-click="get_branch(branch.root)")>{{branch.name}}
+                <button ng-click="rename(branch)">Rename</button>
+            </li>
         </ul>
         <button ng-click="reply()">New</button>
         <hr>
         <h1>Messages</h1>
         <p>Branch is {{branch.name}}</p>
         <script type="text/ng-template" id="message.html">
-            <div class="message">
+            <div style="border-left: {{message.level*10}}px solid gray;"
+                 class="message">
                 <div btf-markdown ng-include="get_message_url(message.key)">
                 </div>
                 <button ng-click="reply(message)">Reply</button>
             </div>
-            <table ng-if="message.replies">
-                <tr>
-                    <td ng-repeat="message in message.replies" ng-include="'message.html'"></td>
-                </tr>
-            </table>
         </script>
+        <div ng-repeat="message in messages" ng-include="'message.html'">
+        </div>
         <script type="text/ng-template" id="message_form.html">
             Write a message.<br/>
             <form ng-submit="create_message(text, ngDialogData.message)">
-                <textarea ng-model="text" rows="10", cols="40"></textarea>
+                <textarea ng-model="text" rows="10" cols="40"></textarea>
                 <br/>
                 <input type="submit" value="Send"/>
             </form>
         </script>
-        <table ng-if="branch.root">
-            <tr>
-                <td ng-repeat="message in root" ng-include="'message.html'"></td>
-            </tr>
-        </table>
+        <script type="text/ng-template" id="rename_branch_form.html">
+            Rename the branch {{ngDialogData.branch.name}}.<br/>
+            <form ng-init="text = ngDialogData.branch.name"
+                  ng-submit="rename_branch(text)">
+                <input ng-model="text"/>
+                <br/>
+                <input type="submit" value="Rename"/>
+            </form>
+        </script>
     </body>
 </html>

@@ -9,7 +9,10 @@ class Branch(set):
         self._name = None
 
     def __hash__(self):
-        return hash(self.name)
+        return hash(self.root)
+
+    def __repr__(self):
+        return '<Branch %s>' % self.name
 
     @property
     def name(self):
@@ -20,6 +23,7 @@ class Branch(set):
         self._name = name
 
     def insert(self, message):
+        print(self.root, message.key, message.in_reply_to)
         self.add(message.key)
         message.branch = self
 

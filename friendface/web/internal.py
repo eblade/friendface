@@ -25,6 +25,7 @@ class InternalApi(Api):
 
         app.route('/b', 'GET', self.get_branches)
         app.route('/b/<message_id>', 'GET', self.get_branch)
+        app.route('/b/<message_id>', 'PUT', self.rename_branch)
 
     # override
     def get_thread_name(self):
@@ -70,6 +71,7 @@ class InternalApi(Api):
 
     def get_branches(self):
         branches = self.session.get_branches()
+        print(branches)
 
         return {
             'type': 'branch/listing',
@@ -90,3 +92,8 @@ class InternalApi(Api):
             'key': branch.root,
             'messages': branch.to_flat_tree(),
         }
+
+    def rename_branch(self, message_id):
+        branch = self.session.get_branch(message_id)
+        branch.name = request.body.read().decode('utf8')
+        return HTTPResponse(status=200)
