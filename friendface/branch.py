@@ -51,16 +51,19 @@ class Branch(set):
 
 
 def count_leaves(root):
-    total_leaves = 0
-    for reply in root['replies']:
-        leaves = reply.get('leaves') or count_leaves(reply)
-        reply['leaves'] = leaves
+    total_leaves = 1  # this one
+    for leaf in root['replies']:
+        leaves = leaf.get('leaves') or count_leaves(leaf)
+        leaf['leaves'] = leaves
         total_leaves += leaves
     return total_leaves
 
 
 def flatten_tree(root, level=0):
     result = [dict(key=root['key'], level=level)]
-    for reply in sorted(root.get('replies'), key=lambda x: x.get('leaves')):
-        result.extend(flatten_tree(reply, level))
+    last = len(root.get('replies')) - 1
+    for n, leaf in enumerate(sorted(
+            root.get('replies'),
+            key=lambda x: (x.get('leaves'), x.get('key')))):
+        result.extend(flatten_tree(leaf, level+(0 if n == last else 1)))
     return result
