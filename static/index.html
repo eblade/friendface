@@ -4,17 +4,50 @@
         <title>friendface</title>
         <!--<link rel="stylesheet" type="text/css" href="css/index.css"/>-->
         <script src="/ui/js/angular.min.js"></script>
+        <script src="/ui/js/angular-sanitize.min.js"></script>
+        <script src="/ui/js/showdown.min.js"></script>
+        <script src="/ui/js/markdown.js"></script>
+        <script src="/ui/js/ngDialog.js"></script>
         <script src="/ui/js/friendface.js"></script>
+        <link rel="stylesheet" type="text/css" href="/ui/css/index.css"/>
+        <link rel="stylesheet" type="text/css" href="/ui/css/ngDialog.css"/>
+        <link rel="stylesheet" type="text/css" href="/ui/css/ngDialog-theme-default.css"/>
     </head>
     <body ng-controller="Main">
-        <h1>Messages</h1>
-        <button ng-click="get_messages()">Get messages</button>
-        <form ng-submit="create_message()">
-            <input type="text" ng-model="state.message_text"/>
-            <input type="submit" value="Send"/>
-        </form>
+        <h1>Branches</h1>
+        <button ng-click="get_branches()">Get branches</button>
         <ul>
-            <li ng-repeat="message in state.messages">{{message}}</li>
-        </li>
+            <li ng-repeat="branch in branches"
+                ng-click="get_branch(branch.root)")>{{branch.name}}</li>
+        </ul>
+        <button ng-click="reply()">New</button>
+        <hr>
+        <h1>Messages</h1>
+        <p>Branch is {{branch.name}}</p>
+        <script type="text/ng-template" id="message.html">
+            <div class="message">
+                <div btf-markdown ng-include="get_message_url(message.key)">
+                </div>
+                <button ng-click="reply(message)">Reply</button>
+            </div>
+            <table ng-if="message.replies">
+                <tr>
+                    <td ng-repeat="message in message.replies" ng-include="'message.html'"></td>
+                </tr>
+            </table>
+        </script>
+        <script type="text/ng-template" id="message_form.html">
+            Write a message.<br/>
+            <form ng-submit="create_message(text, ngDialogData.message)">
+                <textarea ng-model="text" rows="10", cols="40"></textarea>
+                <br/>
+                <input type="submit" value="Send"/>
+            </form>
+        </script>
+        <table ng-if="branch.root">
+            <tr>
+                <td ng-repeat="message in root" ng-include="'message.html'"></td>
+            </tr>
+        </table>
     </body>
 </html>

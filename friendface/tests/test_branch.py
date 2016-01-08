@@ -4,6 +4,7 @@ import pytest
 
 from friendface.session import Session
 from friendface.message import Message
+from friendface.branch import Branch
 
 
 @pytest.fixture(scope="function")
@@ -20,9 +21,11 @@ def test_find_reply_of_message(session):
 
     branch = session.get_branch(replee.key)
 
-    assert branch.key == replee.key
-    assert len(branch) == 1
+    assert len(branch) == 2
     assert reply.key in branch
+    assert replee.key in branch
+    assert branch.root == replee.key
+    assert branch.replies[replee.key] == [reply.key]
 
 
 def test_find_reply_of_message_two_levels_apart(session):
@@ -37,10 +40,21 @@ def test_find_reply_of_message_two_levels_apart(session):
 
     branch = session.get_branch(replee.key)
 
-    assert branch.key == replee.key
-    assert len(branch) == 1
+    assert len(branch) == 3
     assert reply.key in branch
+    assert replee.key in branch
+    assert reply_reply.key in branch
+    assert branch.root == replee.key
+    assert branch.replies[replee.key] == [reply.key]
+    assert branch.replies[reply.key] == [reply_reply.key]
 
-    assert branch[reply.key].key == reply.key
-    assert len(branch[reply.key]) == 1
-    assert reply_reply.key in branch[reply.key]
+
+def test_rename_branch():
+    branch = Branch()
+    assert branch.name is None
+
+    branch.root = '1'
+    assert branch.name == '1'
+
+    branch.name = '2'
+    assert branch.name == '2'

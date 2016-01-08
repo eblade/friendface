@@ -22,6 +22,11 @@ def get_js(file):
     return static_file(file + '.js', root=_get_static_path('js'))
 
 
+@ui_app.get('/js/<file>.map')
+def get_js(file):
+    return static_file(file + '.map', root=_get_static_path('js'))
+
+
 @ui_app.get('/css/<file>.css')
 def get_css(file):
     return static_file(file + '.css', root=_get_static_path('css'))

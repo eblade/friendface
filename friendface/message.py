@@ -24,7 +24,14 @@ class Message:
         self.timestamp = timestamp  #: non-trusted timestamp (unix epoch)
         self.in_reply_to = in_reply_to  #: key of a message in the same thread
 
+        # Links, run-time only
         self.branch = None  #: the Branch this message is part of
+
+    def __hash__(self):
+        return hash(self.key)
+
+    def __repr__(self):
+        return '<Message %s>' % (self.key or ('?'))
 
     @classmethod
     def from_http(self, body, headers):
@@ -40,7 +47,7 @@ class Message:
             'Key': self.key if self.key else None,
             'Source': self.source if self.source else None,
             'Verified': 'yes' if self.verified else 'no',
-            'Signature': base64.b64encode(self.signature) if self.signature else None,
+            'Signature': base64.b64encode(self.signature).decode() if self.signature else None,
             'Public-Key': base64.b64encode(self.public_key).decode() if self.public_key else None,
             'Timestamp': str(self.timestamp) if self.timestamp else None,
             'In-Reply-To': self.in_reply_to if self.in_reply_to else None,
@@ -65,8 +72,11 @@ class Message:
             + (self.source.encode('utf8') if self.source else bytes())\
             + (self.in_reply_to.encode('utf8') if self.in_reply_to else bytes())
         self.key = hashlib.md5(string).hexdigest()
+
+        # create a new branch if none exists
         if self.branch is None:
-            self.branch = Branch(self.key)
+            self.branch = Branch()
+            self.branch.insert(self)
 
     def to_dict(self, for_sharing=False):
         d = {
