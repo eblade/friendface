@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import time
 from bottle import redirect, request, HTTPResponse
 
 from .api import Api
@@ -45,6 +46,9 @@ class InternalApi(Api):
         message = Message.from_http(body, request.headers)
         message.calculate_key()
         message = sign(message)
+        message.source = self.session.public_key_str
+        message.verified = True
+        message.timestamp = time.time()
         assert message.branch is not None
         self.session.register_message(message)
 
@@ -61,7 +65,7 @@ class InternalApi(Api):
         if message is None:
             return HTTPResponse('Unknown message', 404)
 
-        body, headers = message.to_http()
+        body, headers = message.to_http(friends=self.session.friends)
 
         raise HTTPResponse(
             body=body,

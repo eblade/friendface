@@ -40,14 +40,23 @@ class Message:
             d['public_key'] = base64.b64decode(d['public_key'])
         if 'signature' in d:
             d['signature'] = base64.b64decode(d['signature'])
+        if 'source' in d:
+            d['source'] = base64.b64decode(d['source'])
         if d.get('in_reply_to', None) == 'null':
             d['in_reply_to'] = None
         return Message(data=body, **d)
 
-    def to_http(self, for_sharing=False):
+    def to_http(self, for_sharing=False, friends=None):
+
+        friends = friends or {}
+        source_alias = None
+        if self.source and self.source in friends:
+            source_alias = '@' + friends.get(self.source)
+
         headers = {
             'Key': self.key if self.key else None,
-            'Source': self.source if self.source else None,
+            'Source': base64.b64encode(self.source).decode() if self.source else None,
+            'Source-Alias': source_alias,
             'Verified': 'yes' if self.verified else 'no',
             'Signature': base64.b64encode(self.signature).decode() if self.signature else None,
             'Public-Key': base64.b64encode(self.public_key).decode() if self.public_key else None,

@@ -21,3 +21,19 @@ div.message {
     margin-top: 2px;
     margin-bottom: 2px;
 }
+
+.verified_yes {
+    color: green;
+}
+
+.verified_no {
+    color: red;
+}
+
+.key {
+    color: gray;
+}
+
+.source {
+    overflow: hidden;
+}

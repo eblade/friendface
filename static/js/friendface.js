@@ -29,20 +29,6 @@ angular.module('friendface', ['btford.markdown', 'ngDialog'])
         );
     };
 
-    $scope.load_message = function (message_id) {
-        $http.get('/m' + message_id).then(
-            function (r) {
-                $scope.state.current_data = r.data;
-            },
-            function () { alert('Could not load message ' + message_id); }
-        );
-    };
-
-
-    $scope.get_message_url = function (key) {
-        return '/m/' + key;
-    };
-
     $scope.reply = function (message) {
         ngDialog.open({
             template: 'message_form.html',
@@ -97,4 +83,21 @@ angular.module('friendface', ['btford.markdown', 'ngDialog'])
     };
 
     $scope.get_branches();
+})
+
+
+.controller("Message", function ($scope, $http) {
+    $scope.load_message = function (message_id) {
+        $http.get('/m/' + message_id).then(
+            function (r) {
+                $scope.message.data = r.data;
+                $scope.message.verified = r.headers('Verified');
+                $scope.message.source = r.headers('Source-Alias') || r.headers('Source');
+                $scope.message.timestamp = new Date(r.headers('Timestamp') * 1000).toLocaleString();
+            },
+            function () { alert('Could not load message ' + message_id); }
+        );
+    };
+
+    $scope.load_message($scope.message.key);
 });

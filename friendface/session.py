@@ -7,6 +7,7 @@ class Session:
         self.friends = {}  #: my friends, trusted public keys (key => alias)
         self.private_key = None  #: my global private key
         self.public_key = None  #: my global public key
+        self.public_key_str = None  #: my global public key (exported)
         self.routes = {}  #: known peers (public key => address)
         self.branches = set()  #: set of known branches
 
