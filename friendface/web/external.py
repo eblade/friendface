@@ -11,19 +11,21 @@ class ExternalApi(Api):
         self.app = app
 
         # Set Up External Endpoints
-        app.route('/<message_id>', 'GET', self.get_message)
+        app.route('/m/<message_id>', 'GET', self.get_message_by_id)
 
     # override
     def get_thread_name(self):
         return 'external_api'
 
-    def get_message(self, thread_id, message_id):
-        thread = self.session.threads.get(thread_id)
-        if thread is None:
-            return HTTPResponse('Unknown thread', 404)
-
-        message = thread.messages.get(message_id)
+    def get_message_by_id(self, message_id):
+        message = self.session.get_message(message_id)
         if message is None:
             return HTTPResponse('Unknown message', 404)
 
-        return message.to_dict(for_sharing=True)
+        body, headers = message.to_http()
+
+        raise HTTPResponse(
+            body=body,
+            status=200,
+            headers=headers,
+        )
