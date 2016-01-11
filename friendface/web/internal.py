@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import time
 from bottle import redirect, request, HTTPResponse
 
 from .api import Api
@@ -46,6 +47,8 @@ class InternalApi(Api):
         message.calculate_key()
         message = sign(message)
         message.source = self.session.public_key_str
+        message.verified = True
+        message.timestamp = time.time()
         assert message.branch is not None
         self.session.register_message(message)
 
