@@ -46,10 +46,17 @@ class Message:
             d['in_reply_to'] = None
         return Message(data=body, **d)
 
-    def to_http(self, for_sharing=False):
+    def to_http(self, for_sharing=False, friends=None):
+
+        friends = friends or {}
+        source_alias = None
+        if self.source and self.source in friends:
+            source_alias = '@' + friends.get(self.source)
+
         headers = {
             'Key': self.key if self.key else None,
             'Source': base64.b64encode(self.source).decode() if self.source else None,
+            'Source-Alias': source_alias,
             'Verified': 'yes' if self.verified else 'no',
             'Signature': base64.b64encode(self.signature).decode() if self.signature else None,
             'Public-Key': base64.b64encode(self.public_key).decode() if self.public_key else None,

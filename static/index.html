@@ -27,9 +27,13 @@
         <h1>Messages</h1>
         <p>Branch is {{branch.name}}</p>
         <script type="text/ng-template" id="message.html">
-            <div style="border-left: {{message.level*10}}px solid gray;"
+            <div ng-controller="Message"
+                 style="border-left: {{message.level*10}}px solid gray;"
                  class="message">
-                <div btf-markdown ng-include="get_message_url(message.key)">
+                <div class="key">{{message.key}}</div>
+                <div class="timestamp">{{message.timestamp}}</div>
+                <div class="verified_{{message.verified}} source">{{message.source}}</div>
+                <div btf-markdown="message.data">
                 </div>
                 <button ng-click="reply(message)">Reply</button>
             </div>

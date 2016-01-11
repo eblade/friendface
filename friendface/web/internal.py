@@ -65,7 +65,7 @@ class InternalApi(Api):
         if message is None:
             return HTTPResponse('Unknown message', 404)
 
-        body, headers = message.to_http()
+        body, headers = message.to_http(friends=self.session.friends)
 
         raise HTTPResponse(
             body=body,

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 import os
-import shutil
 import logging
 
 from enum import IntEnum
@@ -90,7 +89,7 @@ def get_global_keys(private_key_path, public_key_path):
             logging.info("Public global key from private key.")
             public_key = private_key.publickey()
             write_public = True
-            
+
     else:
         private_key, public_key = generate_key_pair()
         write_private = True

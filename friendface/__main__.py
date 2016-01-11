@@ -32,14 +32,15 @@ if __name__ == '__main__':
 
     # Session
     session = Session()
+    session.alias = config['privacy']['alias']
 
     # Keys
     session.private_key, session.public_key = get_global_keys(
         config['privacy']['private key'],
         config['privacy']['public key'],
-    ) 
+    )
     session.public_key_str = session.public_key.exportKey()
-    print(session.public_key_str)
+    session.friends[session.public_key_str] = session.alias
 
     # Servers
     ext_addr = config['external']['hostname'], int(config['external']['port'])
