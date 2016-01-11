@@ -45,6 +45,7 @@ class InternalApi(Api):
         message = Message.from_http(body, request.headers)
         message.calculate_key()
         message = sign(message)
+        message.source = self.session.public_key_str
         assert message.branch is not None
         self.session.register_message(message)
 
