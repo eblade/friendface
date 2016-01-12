@@ -53,6 +53,9 @@ class Branch(set):
         count_leaves(tree)
         return flatten_tree(tree)
 
+    def to_uri_list(self):
+        return '\n'.join(sorted(self))
+
 
 def count_leaves(root):
     total_leaves = 1  # this one
