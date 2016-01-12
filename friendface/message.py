@@ -11,7 +11,7 @@ class Message:
     def __init__(self, data=None, key=None, source=None, verified=False,
                  signature=None, public_key=None, private_key=None,
                  privacy=Privacy.friends, timestamp=None,
-                 in_reply_to=None, **scrap):
+                 in_reply_to=None, content_type='text/plain', **scrap):
 
         self.data = data  #: The actual data, as a byte string
         self.key = key  #: The hash key for this message
@@ -23,6 +23,7 @@ class Message:
         self.privacy = privacy  #: Verification level
         self.timestamp = timestamp  #: non-trusted timestamp (unix epoch)
         self.in_reply_to = in_reply_to  #: key of a message in the same thread
+        self.content_type = content_type  #: MIME type of the message data
 
         # Links, run-time only
         self.branch = None  #: the Branch this message is part of
@@ -62,6 +63,7 @@ class Message:
             'Public-Key': base64.b64encode(self.public_key).decode() if self.public_key else None,
             'Timestamp': str(self.timestamp) if self.timestamp else None,
             'In-Reply-To': self.in_reply_to if self.in_reply_to else None,
+            'Content-Type': self.conrent_type or 'text/plain',
         }
 
         if not for_sharing:
@@ -99,6 +101,7 @@ class Message:
             'public_key': self.public_key,
             'timestamp': self.timestamp,
             'in_reply_to': self.in_reply_to,
+            'content_type': self.content_type,
         }
 
         if not for_sharing:
