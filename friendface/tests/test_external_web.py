@@ -6,7 +6,6 @@ import bottle
 
 from friendface.session import Session
 from friendface.web import external
-# from friendface.privacy import verify
 from friendface.message import Message
 
 

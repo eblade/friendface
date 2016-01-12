@@ -63,7 +63,7 @@ class Message:
             'Public-Key': base64.b64encode(self.public_key).decode() if self.public_key else None,
             'Timestamp': str(self.timestamp) if self.timestamp else None,
             'In-Reply-To': self.in_reply_to if self.in_reply_to else None,
-            'Content-Type': self.conrent_type or 'text/plain',
+            'Content-Type': self.content_type or 'text/plain',
         }
 
         if not for_sharing:
