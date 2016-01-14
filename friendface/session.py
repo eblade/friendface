@@ -1,6 +1,12 @@
 # -*- coding: utf-8 -*-
 
 
+import requests
+from urllib.parse import urlparse, urlunparse
+from .message import Message
+from .branch import Branch
+
+
 class Session:
     def __init__(self):
         self.messages = {}  #: my message catalog (message key => Message)
@@ -14,6 +20,7 @@ class Session:
         # Networking
         self.external_app = None  #: web app for external api
         self.internal_app = None  #: web app for internal api
+        self.client = requests.Session()  #: web client
 
     def register_message(self, message):
         if message.key is None:
@@ -23,6 +30,8 @@ class Session:
             replied = self.get_message(message.in_reply_to)
             if replied is not None:
                 replied.branch.insert(message)
+            else:
+                pass  # FIXME Loose end! Must remember this!
 
         self.messages[message.key] = message
         self.branches.add(message.branch)
@@ -39,3 +48,17 @@ class Session:
 
     def get_branches(self):
         return self.branches
+
+    def notify(self, address):
+        r = self.client.get(address)
+        if r.content_type == 'text/uri-list':
+            keys = r.body.split(b'\n')
+            urlinfo = list(urlparse(address))
+            for key in keys:
+                if not key in self.messages.keys():
+                    urlinfo[2] = '/m/' + key.decode('utf8')
+                    print(urlinfo)
+                    self.notify(urlunparse(urlinfo))
+        else:
+            message = Message.from_http(r.body, r.headers)
+            self.register_message(message)

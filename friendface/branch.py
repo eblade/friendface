@@ -23,7 +23,6 @@ class Branch(set):
         self._name = name
 
     def insert(self, message):
-        print(self.root, message.key, message.in_reply_to)
         self.add(message.key)
         message.branch = self
 

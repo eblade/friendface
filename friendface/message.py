@@ -45,6 +45,8 @@ class Message:
             d['source'] = base64.b64decode(d['source'])
         if d.get('in_reply_to', None) == 'null':
             d['in_reply_to'] = None
+        if 'privacy' in d:
+            d['privacy'] = getattr(Privacy, d['privacy'])
         return Message(data=body, **d)
 
     def to_http(self, for_sharing=False, friends=None):
