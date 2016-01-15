@@ -4,7 +4,6 @@
 import requests
 from urllib.parse import urlparse, urlunparse
 from .message import Message
-from .branch import Branch
 
 
 class Session:
@@ -55,7 +54,7 @@ class Session:
             keys = r.body.split(b'\n')
             urlinfo = list(urlparse(address))
             for key in keys:
-                if not key in self.messages.keys():
+                if key not in self.messages.keys():
                     urlinfo[2] = '/m/' + key.decode('utf8')
                     print(urlinfo)
                     self.notify(urlunparse(urlinfo))
