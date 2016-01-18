@@ -174,3 +174,29 @@ def test_flatten_tree_with_really_complex_structure(session):
         {'key': acaab.key, 'level': 0},
         {'key': acaaba.key, 'level': 0},
     ]
+
+
+def test_populate_branch_with_messages_in_the_wrong_order(session):
+    messages = {}
+    last = None
+    for c in 'abcdefghij':
+        message = Message(data=b'a')
+        if last:
+            message.in_reply_to = last.key
+        message.calculate_key()
+        last = message
+        messages[c] = message
+
+    for c in 'efbcagijhd':
+        session.register_message(messages[c])
+
+    branch = session.get_branch(messages['a'].key)
+    assert len(session.get_branches()) == 1
+    assert len(branch) == 10
+    assert branch.root == messages['a'].key
+
+    tree = branch.to_flat_tree()
+    assert tree == [
+        {'key': messages[x].key, 'level': 0}
+        for x in 'abcdefghij'
+    ]

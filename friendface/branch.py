@@ -38,6 +38,10 @@ class Branch(set):
         else:
             self.root = message.key
 
+    def combine(self, branch, session):
+        for key in branch:
+            self.insert(session.get_message(key))
+
     def to_tree(self, root=None):
         root = root or self.root
         return {

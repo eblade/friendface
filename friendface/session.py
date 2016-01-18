@@ -15,6 +15,7 @@ class Session:
         self.public_key_str = None  #: my global public key (exported)
         self.routes = {}  #: known peers (public key => address)
         self.branches = set()  #: set of known branches
+        self.loose_ends = {}  #: messages that reply to unknown keys
 
         # Networking
         self.external_app = None  #: web app for external api
@@ -30,9 +31,15 @@ class Session:
             if replied is not None:
                 replied.branch.insert(message)
             else:
-                pass  # FIXME Loose end! Must remember this!
+                self.loose_ends[message.in_reply_to] = message
 
         self.messages[message.key] = message
+
+        if message.key in self.loose_ends:
+            loose_branch = self.loose_ends.pop(message.key).branch
+            message.branch.combine(loose_branch, self)
+            self.branches.remove(loose_branch)
+
         self.branches.add(message.branch)
 
     def get_message_keys(self):
