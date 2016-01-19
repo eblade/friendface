@@ -1,6 +1,11 @@
 # -*- coding: utf-8 -*-
 
 
+import requests
+from urllib.parse import urlparse, urlunparse
+from .message import Message
+
+
 class Session:
     def __init__(self):
         self.messages = {}  #: my message catalog (message key => Message)
@@ -10,10 +15,12 @@ class Session:
         self.public_key_str = None  #: my global public key (exported)
         self.routes = {}  #: known peers (public key => address)
         self.branches = set()  #: set of known branches
+        self.loose_ends = {}  #: messages that reply to unknown keys
 
         # Networking
         self.external_app = None  #: web app for external api
         self.internal_app = None  #: web app for internal api
+        self.client = requests.Session()  #: web client
 
     def register_message(self, message):
         if message.key is None:
@@ -23,8 +30,16 @@ class Session:
             replied = self.get_message(message.in_reply_to)
             if replied is not None:
                 replied.branch.insert(message)
+            else:
+                self.loose_ends[message.in_reply_to] = message
 
         self.messages[message.key] = message
+
+        if message.key in self.loose_ends:
+            loose_branch = self.loose_ends.pop(message.key).branch
+            message.branch.combine(loose_branch, self)
+            self.branches.remove(loose_branch)
+
         self.branches.add(message.branch)
 
     def get_message_keys(self):
@@ -39,3 +54,17 @@ class Session:
 
     def get_branches(self):
         return self.branches
+
+    def notify(self, address):
+        r = self.client.get(address)
+        if r.content_type == 'text/uri-list':
+            keys = r.body.split(b'\n')
+            urlinfo = list(urlparse(address))
+            for key in keys:
+                if key not in self.messages.keys():
+                    urlinfo[2] = '/m/' + key.decode('utf8')
+                    print(urlinfo)
+                    self.notify(urlunparse(urlinfo))
+        else:
+            message = Message.from_http(r.body, r.headers)
+            self.register_message(message)

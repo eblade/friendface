@@ -23,7 +23,6 @@ class Branch(set):
         self._name = name
 
     def insert(self, message):
-        print(self.root, message.key, message.in_reply_to)
         self.add(message.key)
         message.branch = self
 
@@ -39,6 +38,10 @@ class Branch(set):
         else:
             self.root = message.key
 
+    def combine(self, branch, session):
+        for key in branch:
+            self.insert(session.get_message(key))
+
     def to_tree(self, root=None):
         root = root or self.root
         return {
@@ -52,6 +55,9 @@ class Branch(set):
         tree = self.to_tree()
         count_leaves(tree)
         return flatten_tree(tree)
+
+    def to_uri_list(self):
+        return '\n'.join(sorted(self))
 
 
 def count_leaves(root):
