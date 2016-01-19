@@ -1,0 +1,13 @@
+language: python
+python:
+  - "3.5"
+# command to install dependencies
+#before_install:
+#  - "sudo apt-get install -qq"
+install:
+  - "pip install pytest pyflakes pip pep8 coverage pycrypto webtest requests pytest-pep8 pytest-cov pytest-flakes"
+  - "python setup.py install"    
+# command to run tests
+script: "env PYTHONPATH=.:$PYTHONPATH py.test -v"
+notifications:
+  email: false
