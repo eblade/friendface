@@ -1,3 +1,6 @@
+.. image:: https://travis-ci.org/eblade/friendface.svg?branch=master
+    :target: https://travis-ci.org/eblade/friendface
+
 ============
  friendface
 ============
