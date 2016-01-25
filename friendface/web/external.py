@@ -3,6 +3,8 @@
 from bottle import HTTPResponse
 
 from .api import Api
+from ..privacy import sign
+from ..message import Message
 
 
 class ExternalApi(Api):
@@ -37,8 +39,16 @@ class ExternalApi(Api):
         if branch is None:
             return HTTPResponse('Unknown branch', 404)
 
+        message = Message(
+            data=branch.to_uri_list().encode('utf8'),
+            content_type='text/uri-list')
+        message = sign(
+            message,
+            (self.session.private_key, self.session.public_key))
+        body, headers = message.to_http()
+
         raise HTTPResponse(
-            branch.to_uri_list(),
+            body=body,
             status=200,
-            headers={'Content-Type': 'text/uri-list'},
+            headers=headers,
         )

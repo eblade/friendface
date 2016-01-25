@@ -48,14 +48,20 @@ def verify(message):
     return message
 
 
-def sign(message):
+def sign(message, keys=None):
     """
     Generate new keys and sign a message.
+
+    If keys is None, a new pair will be generated on the fly.
+    Else, give keys as a tuple (private_key, public_key)
 
     Returns Message (signed)
     """
     message = message.copy()
-    private_key, public_key = generate_key_pair()
+    if keys is None:
+        private_key, public_key = generate_key_pair()
+    else:
+        private_key, public_key = keys
     message.private_key = private_key.exportKey()
     message.public_key = public_key.exportKey()
     h = SHA.new(message.data)

@@ -4,6 +4,7 @@ import os
 import pytest
 import webtest
 import bottle
+import logging
 from urllib.parse import urlparse
 
 from friendface.session import Session
@@ -19,6 +20,7 @@ class MockClient:
         self._hosts[hostname] = app
 
     def _do(self, method, url, *args, **kwargs):
+        logging.info("%s %s", method.upper(), url)
         urlinfo = urlparse(url)
         if urlinfo.query:
             raise NotImplemented('Query part not supported "%s"' % url)
