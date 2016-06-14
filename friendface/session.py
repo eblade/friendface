@@ -16,11 +16,16 @@ class Session:
         self.routes = {}  #: known peers (public key => address)
         self.branches = set()  #: set of known branches
         self.loose_ends = {}  #: messages that reply to unknown keys
+        self.interest = {}  #: public key => list of branches
+        self.swarm = {}  #: public key => list of known peers
 
         # Networking
         self.external_app = None  #: web app for external api
         self.internal_app = None  #: web app for internal api
         self.client = requests.Session()  #: web client
+
+    def __repr__(self):
+        return '<Session %s>' % self.friends.get(self.public_key_str, '?')
 
     def register_message(self, message):
         if message.key is None:
